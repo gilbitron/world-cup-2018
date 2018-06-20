@@ -4,7 +4,7 @@ Live World Cup 2018 scores in your menu bar.
 
 ## Download
 
-Download the latest version from the releases page.
+Download the latest version from the [releases page](https://github.com/gilbitron/world-cup-2018/releases).
 
 ## Development
 
