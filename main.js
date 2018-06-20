@@ -82,6 +82,16 @@ function setMenu(today, tomorrow) {
     }
 
     menu.append(new MenuItem({ type: 'separator' }));
+	if (tomorrow.length) {
+		menu.append(new MenuItem({ label: 'Tomorrow\'s Matches', enabled: false }));
+		_.forEach(tomorrow, (match) => {
+			menu.append(new MenuItem({ label: getMatchTitle(match), click() {
+					shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
+				} }));
+		});
+	}
+
+	menu.append(new MenuItem({ type: 'separator' }));
     menu.append(new MenuItem({ label: 'About', click() {
         openAboutWindow({
             icon_path: path.join(app.getAppPath(), 'icon/icon-1024.png'),
