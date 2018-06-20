@@ -2,6 +2,8 @@
 
 Live World Cup 2018 scores in your menu bar.
 
+![WorldCup 2018 Demo](https://user-images.githubusercontent.com/203882/41670911-83ec5f10-74ad-11e8-930c-7012721665f0.gif)
+
 ## Download
 
 Download the latest version from the [releases page](https://github.com/gilbitron/world-cup-2018/releases).
