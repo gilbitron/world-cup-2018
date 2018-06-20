@@ -19,6 +19,7 @@ To build the app:
 
 ```
 yarn build
+yarn package # Creates a DMG
 ```
 
 ## Credits

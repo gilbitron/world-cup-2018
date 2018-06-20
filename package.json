@@ -6,7 +6,8 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-packager . --icon=icon/icon.icns --out=build --overwrite --osx-sign.type=distribution"
+    "build": "electron-packager . --icon=icon/icon.icns --out=build --overwrite --osx-sign.type=distribution",
+    "package": "electron-installer-dmg \"build/WorldCup 2018-darwin-x64/WorldCup 2018.app\" \"WorldCup 2018\" --icon=icon/icon.icns --out=build --overwrite"
   },
   "dependencies": {
     "about-window": "^1.11.1",
@@ -16,6 +17,7 @@
     "node-fetch": "^2.1.2"
   },
   "devDependencies": {
-    "electron": "^2.0.2"
+    "electron": "^2.0.2",
+    "electron-installer-dmg": "^1.0.0"
   }
 }
