@@ -3,7 +3,6 @@ const { app, Tray, Menu, MenuItem, shell } = require('electron');
 const fetch = require('node-fetch');
 const _ = require('lodash');
 const moment = require('moment');
-const openAboutWindow = require('about-window').default;
 const settings = require('electron-settings');
 
 let teamData = require('./teams.json');
@@ -138,12 +137,7 @@ function isShowingFlags() {
 
 function setMenuOther() {
     menu.append(new MenuItem({ type: 'separator' }));
-    menu.append(new MenuItem({ label: 'About', click() {
-        openAboutWindow({
-            icon_path: path.join(app.getAppPath(), 'icon/icon-1024.png'),
-            copyright: 'By @gilbitron from Dev7studios'
-        });
-    } }));
+    menu.append(new MenuItem({ label: 'About', role: 'about' }));
     menu.append(new MenuItem({ label: 'Quit', role: 'quit' }));
 }
 
