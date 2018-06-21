@@ -98,10 +98,7 @@ function renderTodayMatches() {
         var title = getMatchTitle(match, 'code');
         tray.setTitle(title);
         tray.setToolTip(title);
-
-        menu.append(new MenuItem({ label: getMatchTitle(match), click() {
-            shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
-        } }));
+        renderMatchEvents(match);
         menu.append(new MenuItem({ type: 'separator' }));
 
         handleMatchEvents(match);
@@ -119,6 +116,15 @@ function renderTodayMatches() {
         menu.append(new MenuItem({ label: getMatchTitle(match), click() {
                 shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
             } }));
+    });
+}
+
+function renderMatchEvents(match) {
+    let matchEvents = getMatchEvents(match);
+
+    let events = combineTeamEvents(matchEvents.home, matchEvents.away);
+    _.forEach(events, (event) => {
+        menu.append(new MenuItem({label: getEventDescription(event)}));
     });
 }
 
