@@ -1,13 +1,13 @@
 {
   "name": "world-cup-2018",
-  "productName": "WorldCup 2018",
   "version": "0.2.0",
   "description": "Live World Cup 2018 scores in your menu bar",
+  "author": "Gilbert Pellegrom <gilbert@pellegrom.me>",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-packager . --icon=icon/icon.icns --out=build --overwrite --osx-sign.type=distribution",
-    "package": "electron-installer-dmg \"build/WorldCup 2018-darwin-x64/WorldCup 2018.app\" \"WorldCup 2018\" --icon=icon/icon.icns --out=build --overwrite"
+    "build": "electron-builder --dir",
+    "package": "electron-builder"
   },
   "dependencies": {
     "about-window": "^1.11.1",
@@ -19,6 +19,14 @@
   },
   "devDependencies": {
     "electron": "^2.0.2",
-    "electron-installer-dmg": "^1.0.0"
+    "electron-builder": "^20.15.1"
+  },
+  "build": {
+    "appId": "com.gilbitron.world-cup-2018",
+    "productName": "WorldCup 2018",
+    "copyright": "By @gilbitron from Dev7studios",
+    "mac": {
+      "icon": "icon/icon.icns"
+    }
   }
 }
