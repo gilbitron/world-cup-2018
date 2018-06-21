@@ -157,7 +157,7 @@ function getMatchTitle(match, label = 'country') {
 
     if (use_emoji_flags()) {
         homeTeam += ' ' + getCountryEmoji(match.home_team['code']);
-        awayTeam += ' ' + getCountryEmoji(match.away_team['code']);
+        awayTeam = getCountryEmoji(match.away_team['code']) + ' ' + awayTeam;
     }
 
     if (match.status != 'future') {
