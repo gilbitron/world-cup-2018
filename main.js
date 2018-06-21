@@ -31,8 +31,8 @@ app.on('ready', () => {
 });
 
 function setDefaultSettings() {
-    if (!settings.has('emoji_flags')) {
-        settings.set('emoji_flags', true);
+    if (!settings.has('show_flags')) {
+        settings.set('show_flags', true);
     }
 }
 
@@ -122,18 +122,18 @@ function setMenu() {
 function setMenuSettings() {
     menu.append(new MenuItem({type: 'separator'}));
     menu.append(new MenuItem({
-        label: 'Emoji Flags',
+        label: 'Show Flags',
         type: 'checkbox',
-        checked: use_emoji_flags(),
+        checked: isShowingFlags(),
         click(menuItem) {
-            settings.set('emoji_flags', menuItem.checked);
+            settings.set('show_flags', menuItem.checked);
             setMenu();
         },
     }));
 }
 
-function use_emoji_flags() {
-    return settings.get('emoji_flags');
+function isShowingFlags() {
+    return settings.get('show_flags');
 }
 
 function setMenuOther() {
@@ -155,7 +155,7 @@ function getMatchTitle(match, label = 'country') {
     let homeTeam = match.home_team[label];
     let awayTeam = match.away_team[label];
 
-    if (use_emoji_flags()) {
+    if (isShowingFlags()) {
         homeTeam += ' ' + getCountryEmoji(match.home_team['code']);
         awayTeam = getCountryEmoji(match.away_team['code']) + ' ' + awayTeam;
     }
