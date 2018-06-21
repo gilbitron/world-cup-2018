@@ -7,6 +7,8 @@ const openAboutWindow = require('about-window').default;
 
 let tray = null;
 let menu = null;
+let tomorrowData = null;
+let todayData = null;
 
 app.on('ready', () => {
     if (app.dock) {
@@ -18,32 +20,45 @@ app.on('ready', () => {
     menu.append(new MenuItem({ label: 'Quit', role: 'quit' }));
     tray.setContextMenu(menu);
 
-    fetchData();
-    setInterval(fetchData, 60 * 1000);
+    fetchTomorrowData();
+    fetchTodayData();
+    setInterval(fetchTodayData, 60 * 1000);
 });
 
 app.on('window-all-closed', () => {
     // nothing
 });
 
-function fetchData() {
+function fetchTomorrowData () {
+    fetch('https://world-cup-json.herokuapp.com/matches/tomorrow')
+        .then(resp => resp.json())
+        .then(json => {
+            tomorrowData = json;
+            setMenu();
+        }).catch(function (err) {
+            console.error(err);
+        })
+}
+
+function fetchTodayData() {
     fetch('https://world-cup-json.herokuapp.com/matches/today')
         .then(resp => resp.json())
         .then(json => {
-            setMenu(json);
-        }).catch(function(err) {
+            todayData = json;
+            setMenu();
+        }).catch(function (err) {
             console.error(err);
-        });
+        })
 }
 
-function setMenu(data) {
+function setMenu() {
     menu = new Menu();
 
-    if (data.length) {
-        data = _.sortBy(data, (match) => new moment(match.datetime));
+    if (todayData && todayData.length) {
+        todayData = sortMatchData(todayData);
 
-        inProgressMatches = _.filter(data, { status: 'in progress' });
-        futureMatches = _.filter(data, { status: 'future' });
+        inProgressMatches = _.filter(todayData, { status: 'in progress' });
+        futureMatches = _.filter(todayData, { status: 'future' });
 
         if (inProgressMatches.length) {
             var match = _.head(inProgressMatches);
@@ -63,7 +78,7 @@ function setMenu(data) {
 
         menu.append(new MenuItem({ label: 'Today\'s Matches', enabled: false }));
 
-        _.forEach(data, (match) => {
+        _.forEach(todayData, (match) => {
             menu.append(new MenuItem({ label: getMatchTitle(match), click() {
                 shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
             } }));
@@ -73,6 +88,18 @@ function setMenu(data) {
         tray.setTitle(title);
         tray.setToolTip(title);
         menu.append(new MenuItem({ label: title, enabled: false }));
+    }
+
+    if (tomorrowData && tomorrowData.length) {
+        tomorrowData = sortMatchData(tomorrowData);
+
+        menu.append(new MenuItem({ type: 'separator' }));
+        menu.append(new MenuItem({ label: 'Tomorrow\'s Matches', enabled: false }));
+        _.forEach(tomorrowData, (match) => {
+            menu.append(new MenuItem({ label: getMatchTitle(match), click() {
+                shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
+            } }));
+        });
     }
 
     menu.append(new MenuItem({ type: 'separator' }));
@@ -85,6 +112,10 @@ function setMenu(data) {
     menu.append(new MenuItem({ label: 'Quit', role: 'quit' }));
 
     tray.setContextMenu(menu);
+}
+
+function sortMatchData(data) {
+    return _.sortBy(data, (match) => moment(match.datetime));
 }
 
 function getMatchTitle(match, label = 'country') {
