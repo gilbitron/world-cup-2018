@@ -45,10 +45,10 @@ function setMenu(data) {
 
         if (inProgressMatches.length) {
             var match = _.head(inProgressMatches);
-            var title = getMatchTitleInProgress(match, 'code');
+            var title = getMatchTitle(match, 'code');
             tray.setTitle(title);
             tray.setToolTip(title);
-            menu.append(new MenuItem({ label: getMatchTitleWithScore(match), click() {
+            menu.append(new MenuItem({ label: getMatchTitle(match), click() {
                 shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
             } }));
             menu.append(new MenuItem({ type: 'separator' }));
@@ -62,7 +62,7 @@ function setMenu(data) {
         menu.append(new MenuItem({ label: 'Today\'s Matches', enabled: false }));
 
         _.forEach(data, (match) => {
-            menu.append(new MenuItem({ label: getMatchTitleWithScore(match), click() {
+            menu.append(new MenuItem({ label: getMatchTitle(match), click() {
                 shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
             } }));
         });
@@ -86,11 +86,11 @@ function setMenu(data) {
 }
 
 function getMatchTitle(match, label = 'country') {
-    return match.home_team[label] + ' - ' + match.away_team[label] + ' (' + formatDatetime(match.datetime) + ')';
-}
+    if ( match.status != 'future') {
+	    return match.home_team[label] + ' ' + match.home_team.goals + ' - ' + match.away_team.goals + ' ' + match.away_team[label] + ' (' + formatMatchTime(match.time) + ')';
+    }
 
-function getMatchTitleWithScore(match, label = 'country') {
-    return match.home_team[label] + ' ' + match.home_team.goals + ' - ' + match.away_team.goals + ' ' + match.away_team[label] + ' (' + formatMatchTime(match.time) + ')';
+	return match.home_team[label] + ' - ' + match.away_team[label] + ' (' + formatDatetime(match.datetime) + ')';
 }
 
 function formatMatchTime(time) {
