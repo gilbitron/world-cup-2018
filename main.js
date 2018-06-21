@@ -7,6 +7,7 @@ const openAboutWindow = require('about-window').default;
 
 let tray = null;
 let menu = null;
+let tomorrowData = null;
 
 app.on('ready', () => {
     if (app.dock) {
@@ -26,25 +27,27 @@ app.on('window-all-closed', () => {
     // nothing
 });
 
-function getData(url) {
-	return new Promise((resolve, reject) => {
-		fetch(url)
-			.then(res => res.json())
-			.then(data => resolve(data))
-			.catch(err => reject(err))
-	})
-}
-
 function fetchData() {
-	Promise.all([
-		getData('https://world-cup-json.herokuapp.com/matches/today'),
-		getData('https://world-cup-json.herokuapp.com/matches/tomorrow')
-	]).then(([today, tomorrow]) =>
-		setMenu(today, tomorrow))
-		.catch(err => console.error(err))
+	if ( tomorrowData == null ) {
+	  fetch('https://world-cup-json.herokuapp.com/matches/tomorrow')
+      .then(resp => resp.json())
+      .then(json => {
+        tomorrowData = sortMatchData(json)
+      }).catch(function (err) {
+      console.error(err)
+    })
+	}
+
+  fetch('https://world-cup-json.herokuapp.com/matches/today')
+    .then(resp => resp.json())
+    .then(json => {
+      setMenu(json)
+    }).catch(function (err) {
+    console.error(err)
+  })
 }
 
-function setMenu(today, tomorrow) {
+function setMenu(today) {
     menu = new Menu();
 
     if (today.length) {
@@ -84,16 +87,17 @@ function setMenu(today, tomorrow) {
     }
 
     menu.append(new MenuItem({ type: 'separator' }));
-	if (tomorrow.length) {
-		menu.append(new MenuItem({ label: 'Tomorrow\'s Matches', enabled: false }));
-		_.forEach(tomorrow, (match) => {
-			menu.append(new MenuItem({ label: getMatchTitle(match), click() {
-					shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
-				} }));
-		});
-	}
 
-	menu.append(new MenuItem({ type: 'separator' }));
+    if (tomorrowData && tomorrowData.length) {
+      menu.append(new MenuItem({ label: 'Tomorrow\'s Matches', enabled: false }));
+      _.forEach(tomorrowData, (match) => {
+        menu.append(new MenuItem({ label: getMatchTitle(match), click() {
+            shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
+          } }));
+      });
+	  }
+
+	  menu.append(new MenuItem({ type: 'separator' }));
     menu.append(new MenuItem({ label: 'About', click() {
         openAboutWindow({
             icon_path: path.join(app.getAppPath(), 'icon/icon-1024.png'),
