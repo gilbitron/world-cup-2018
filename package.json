@@ -1,6 +1,6 @@
 {
   "name": "world-cup-2018",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Live World Cup 2018 scores in your menu bar",
   "author": "Gilbert Pellegrom <gilbert@pellegrom.me>",
   "main": "main.js",
