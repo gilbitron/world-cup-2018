@@ -86,11 +86,11 @@ function setMenu(data) {
 }
 
 function getMatchTitle(match, label = 'country') {
-    if ( match.status != 'future') {
-	    return match.home_team[label] + ' ' + match.home_team.goals + ' - ' + match.away_team.goals + ' ' + match.away_team[label] + ' (' + formatMatchTime(match.time) + ')';
+    if (match.status != 'future') {
+        return match.home_team[label] + ' ' + match.home_team.goals + ' - ' + match.away_team.goals + ' ' + match.away_team[label] + ' (' + formatMatchTime(match.time) + ')';
     }
 
-	return match.home_team[label] + ' - ' + match.away_team[label] + ' (' + formatDatetime(match.datetime) + ')';
+    return match.home_team[label] + ' - ' + match.away_team[label] + ' (' + formatDatetime(match.datetime) + ')';
 }
 
 function formatMatchTime(time) {
