@@ -5,6 +5,8 @@ const _ = require('lodash');
 const moment = require('moment');
 const openAboutWindow = require('about-window').default;
 
+var teamData = require('./teams.json');
+
 let tray = null;
 let menu = null;
 let tomorrowData = null;
@@ -119,11 +121,27 @@ function sortMatchData(data) {
 }
 
 function getMatchTitle(match, label = 'country') {
+    var homeTeam = match.home_team[label];
+    var awayTeam = match.away_team[label];
+
+    homeTeam += ' ' + getCountryEmoji(match.home_team['code']);
+    awayTeam += ' ' + getCountryEmoji(match.away_team['code']);
+
     if (match.status != 'future') {
-        return match.home_team[label] + ' ' + match.home_team.goals + ' - ' + match.away_team.goals + ' ' + match.away_team[label] + ' (' + formatMatchTime(match.time) + ')';
+        return homeTeam + ' ' + match.home_team.goals + ' - ' + match.away_team.goals + ' ' + awayTeam + ' (' + formatMatchTime(match.time) + ')';
     }
 
-    return match.home_team[label] + ' - ' + match.away_team[label] + ' (' + formatDatetime(match.datetime) + ')';
+    return homeTeam + ' - ' + awayTeam + ' (' + formatDatetime(match.datetime) + ')';
+}
+
+function getCountryEmoji(code) {
+    var country = _.find(teamData, function(country) {
+        if (country.fifa_code === code) {
+            return country;
+        }
+    });
+
+    return country['emoji'];
 }
 
 function formatMatchTime(time) {
