@@ -40,7 +40,9 @@ function setMenu(data) {
     menu = new Menu();
 
     if (data.length) {
-        inProgressMatches = _.filter(data, { status: 'in progress' });
+	    data = _.sortBy(data, function(match) { return new moment(match.datetime); });
+
+	    inProgressMatches = _.filter(data, { status: 'in progress' });
         futureMatches = _.filter(data, { status: 'future' });
 
         if (inProgressMatches.length) {
