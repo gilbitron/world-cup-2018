@@ -125,7 +125,7 @@ function setMenuSettings() {
         label: 'Emoji Flags',
         type: 'checkbox',
         checked: use_emoji_flags(),
-        click(menuItem, browserWindow, event) {
+        click(menuItem) {
             settings.set('emoji_flags', menuItem.checked);
             setMenu();
         },
