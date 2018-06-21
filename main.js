@@ -12,6 +12,7 @@ let menu = null;
 let tomorrowData = null;
 let todayData = null;
 let currentMatch = null;
+let currentMatchEvents = [];
 let supportedEvents = ['goal', 'goal-penalty'];
 
 
@@ -95,19 +96,28 @@ function renderTodayMatches() {
 
     if (inProgressMatches.length) {
         var match = _.head(inProgressMatches);
+        if (!currentMatch || currentMatch.fifa_id != match.fifa_id) {
+            currentMatch = match;
+            currentMatchEvents = [];
+        }
         var title = getMatchTitle(match, 'code');
         tray.setTitle(title);
         tray.setToolTip(title);
+
         renderMatchEvents(match);
         menu.append(new MenuItem({ type: 'separator' }));
 
         handleMatchEvents(match);
-        currentMatch = match;
     } else if (futureMatches.length) {
         var match = _.head(futureMatches);
         var title = getMatchTitle(match, 'code');
         tray.setTitle(title);
         tray.setToolTip('Next match: ' + title);
+    }
+
+    if (!inProgressMatches.length) {
+        currentMatch = null;
+        currentMatchEvents = [];
     }
 
     menu.append(new MenuItem({ label: 'Today\'s Matches', enabled: false }));
@@ -210,7 +220,7 @@ function handleMatchEvents(match) {
     if (!isShowingNotifications()) {
         return;
     }
-    if (currentMatch == null) {
+    if (!currentMatch) {
         return;
     }
 
@@ -225,13 +235,8 @@ function handleMatchEvents(match) {
 }
 
 function getNewEvents(match) {
-    let cachedMatchEvents = getMatchEvents(currentMatch);
-    let matchEvents = getMatchEvents(match);
-
-    let newHomeEvents = matchEvents.home.filter(
-        e => !cachedMatchEvents.home.includes(e));
-    let newAwayEvents = matchEvents.away.filter(
-        e => !cachedMatchEvents.away.includes(e));
+    let newHomeEvents = _.reject(match.home_team_events, (event) => _.includes(currentMatchEvents, event.id));
+    let newAwayEvents = _.reject(match.away_team_events, (event) => _.includes(currentMatchEvents, event.id));
 
     if (_.isEmpty(newHomeEvents) && _.isEmpty(newAwayEvents)) {
         return [];
@@ -242,10 +247,12 @@ function getNewEvents(match) {
 
 function combineTeamEvents(homeEvents, awayEvents) {
     homeEvents.map((event) => {
+        currentMatchEvents.push(event.id);
         event.team = 'home_team';
         return event;
     });
     awayEvents.map((event) => {
+        currentMatchEvents.push(event.id);
         event.team = 'away_team';
         return event;
     });
@@ -283,14 +290,6 @@ function eventNotification(event, match) {
         silent: true,
     });
     notification.show();
-}
-
-function getMatchEvents(match) {
-    let matchEvents = [];
-    matchEvents.home = match.home_team_events;
-    matchEvents.away = match.away_team_events;
-
-    return matchEvents;
 }
 
 function getCountryEmoji(code) {
