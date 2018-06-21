@@ -3,7 +3,6 @@ const { app, Tray, Menu, MenuItem, shell, Notification } = require('electron');
 const fetch = require('node-fetch');
 const _ = require('lodash');
 const moment = require('moment');
-const openAboutWindow = require('about-window').default;
 const settings = require('electron-settings');
 
 let teamData = require('./teams.json');
@@ -36,8 +35,8 @@ app.on('ready', () => {
 });
 
 function setDefaultSettings() {
-    if (!settings.has('emoji_flags')) {
-        settings.set('emoji_flags', true);
+    if (!settings.has('show_flags')) {
+        settings.set('show_flags', true);
     }
 }
 
@@ -129,28 +128,23 @@ function setMenu() {
 function setMenuSettings() {
     menu.append(new MenuItem({type: 'separator'}));
     menu.append(new MenuItem({
-        label: 'Emoji Flags',
+        label: 'Show Flags',
         type: 'checkbox',
-        checked: use_emoji_flags(),
+        checked: isShowingFlags(),
         click(menuItem) {
-            settings.set('emoji_flags', menuItem.checked);
+            settings.set('show_flags', menuItem.checked);
             setMenu();
         },
     }));
 }
 
-function use_emoji_flags() {
-    return settings.get('emoji_flags');
+function isShowingFlags() {
+    return settings.get('show_flags');
 }
 
 function setMenuOther() {
     menu.append(new MenuItem({ type: 'separator' }));
-    menu.append(new MenuItem({ label: 'About', click() {
-        openAboutWindow({
-            icon_path: path.join(app.getAppPath(), 'icon/icon-1024.png'),
-            copyright: 'By @gilbitron from Dev7studios'
-        });
-    } }));
+    menu.append(new MenuItem({ label: 'About', role: 'about' }));
     menu.append(new MenuItem({ label: 'Quit', role: 'quit' }));
 }
 
@@ -158,13 +152,13 @@ function sortMatchData(data) {
     return _.sortBy(data, (match) => moment(match.datetime));
 }
 
-function getMatchTitle(match, label = 'country', display_time = true, use_emojis = true ) {
+function getMatchTitle(match, label = 'country', displayTime = true, useEmojis = true ) {
     let homeTeam = match.home_team[label];
     let awayTeam = match.away_team[label];
 
-    if (use_emoji_flags() && use_emojis) {
+    if (isShowingFlags() && useEmojis) {
         homeTeam += ' ' + getCountryEmoji(match.home_team['code']);
-        awayTeam += ' ' + getCountryEmoji(match.away_team['code']);
+        awayTeam = getCountryEmoji(match.away_team['code']) + ' ' + awayTeam;
     }
 
     if (match.status != 'future') {
@@ -172,7 +166,7 @@ function getMatchTitle(match, label = 'country', display_time = true, use_emojis
     }
 
     let title = homeTeam + ' - ' + awayTeam;
-    if (display_time) {
+    if (displayTime) {
         title += ' (' + formatDatetime(match.datetime) + ')';
     }
     return title;
