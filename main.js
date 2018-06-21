@@ -254,17 +254,22 @@ function combineTeamEvents(homeEvents, awayEvents) {
     return events;
 }
 
+function getEventDescription(event) {
+    let time = '(' + event.time;
+    if (event.type_of_event === 'goal-penalty') {
+        time += ' pen';
+    }
+    time += ')';
+
+    return event.player + time;
+}
+
 function eventNotification(event, match) {
     let flag = getCountryEmoji(match[event.team].code);
 
     let title = flag + ' GOAL! ' + getMatchTitle(match, 'country', false, false);
 
-    let player = event.player;
-    if (event.type_of_event === 'goal-penalty') {
-        player += ' (penalty)';
-    }
-
-    let message = event.time + ' ' + player;
+    let message = getEventDescription(event);
 
     let notification = new Notification({
         title: title,
