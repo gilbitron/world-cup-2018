@@ -139,11 +139,11 @@ function use_emoji_flags() {
 function setMenuOther() {
     menu.append(new MenuItem({ type: 'separator' }));
     menu.append(new MenuItem({ label: 'About', click() {
-            openAboutWindow({
-                icon_path: path.join(app.getAppPath(), 'icon/icon-1024.png'),
-                copyright: 'By @gilbitron from Dev7studios'
-            });
-        } }));
+        openAboutWindow({
+            icon_path: path.join(app.getAppPath(), 'icon/icon-1024.png'),
+            copyright: 'By @gilbitron from Dev7studios'
+        });
+    } }));
     menu.append(new MenuItem({ label: 'Quit', role: 'quit' }));
 }
 
