@@ -4,6 +4,7 @@ const fetch = require('node-fetch');
 const _ = require('lodash');
 const moment = require('moment');
 const openAboutWindow = require('about-window').default;
+const settings = require('electron-settings');
 
 let teamData = require('./teams.json');
 
@@ -22,10 +23,18 @@ app.on('ready', () => {
     menu.append(new MenuItem({ label: 'Quit', role: 'quit' }));
     tray.setContextMenu(menu);
 
+    setDefaultSettings();
+
     fetchTomorrowData();
     fetchTodayData();
     setInterval(fetchTodayData, 60 * 1000);
 });
+
+function setDefaultSettings() {
+    if (!settings.has('emoji_flags')) {
+        settings.set('emoji_flags', true);
+    }
+}
 
 app.on('window-all-closed', () => {
     // nothing
@@ -104,9 +113,27 @@ function setMenu() {
         });
     }
 
+    setMenuSettings();
     setMenuOther();
 
     tray.setContextMenu(menu);
+}
+
+function setMenuSettings() {
+    menu.append(new MenuItem({type: 'separator'}));
+    menu.append(new MenuItem({
+        label: 'Emoji Flags',
+        type: 'checkbox',
+        checked: use_emoji_flags(),
+        click(menuItem, browserWindow, event) {
+            settings.set('emoji_flags', menuItem.checked);
+            setMenu();
+        },
+    }));
+}
+
+function use_emoji_flags() {
+    return settings.get('emoji_flags');
 }
 
 function setMenuOther() {
@@ -128,8 +155,10 @@ function getMatchTitle(match, label = 'country') {
     let homeTeam = match.home_team[label];
     let awayTeam = match.away_team[label];
 
-    homeTeam += ' ' + getCountryEmoji(match.home_team['code']);
-    awayTeam += ' ' + getCountryEmoji(match.away_team['code']);
+    if (use_emoji_flags()) {
+        homeTeam += ' ' + getCountryEmoji(match.home_team['code']);
+        awayTeam += ' ' + getCountryEmoji(match.away_team['code']);
+    }
 
     if (match.status != 'future') {
         return homeTeam + ' ' + match.home_team.goals + ' - ' + match.away_team.goals + ' ' + awayTeam + ' (' + formatMatchTime(match.time) + ')';
