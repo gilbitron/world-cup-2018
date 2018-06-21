@@ -48,6 +48,8 @@ function setMenu(today, tomorrow) {
     menu = new Menu();
 
     if (today.length) {
+	    today = _.sortBy(today, (match) => new moment(match.datetime));
+
         inProgressMatches = _.filter(today, { status: 'in progress' });
         futureMatches = _.filter(today, { status: 'future' });
 
