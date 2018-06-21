@@ -19,25 +19,26 @@ app.on('ready', () => {
     menu.append(new MenuItem({ label: 'Quit', role: 'quit' }));
     tray.setContextMenu(menu);
 
-    fetchData();
-    setInterval(fetchData, 60 * 1000);
+    fetchTomorrowData();
+    fetchTodayData();
+    setInterval(fetchTodayData, 60 * 1000);
 });
 
 app.on('window-all-closed', () => {
     // nothing
 });
 
-function fetchData() {
-	if ( tomorrowData == null ) {
-	  fetch('https://world-cup-json.herokuapp.com/matches/tomorrow')
-      .then(resp => resp.json())
-      .then(json => {
-        tomorrowData = sortMatchData(json)
-      }).catch(function (err) {
-      console.error(err)
-    })
-	}
+function fetchTomorrowData () {
+  fetch('https://world-cup-json.herokuapp.com/matches/tomorrow')
+    .then(resp => resp.json())
+    .then(json => {
+      tomorrowData = sortMatchData(json)
+    }).catch(function (err) {
+    console.error(err)
+  })
+}
 
+function fetchTodayData() {
   fetch('https://world-cup-json.herokuapp.com/matches/today')
     .then(resp => resp.json())
     .then(json => {
