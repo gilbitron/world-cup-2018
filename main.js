@@ -73,60 +73,71 @@ function fetchTodayData() {
 function setMenu() {
     menu = new Menu();
 
-    if (todayData && todayData.length) {
-        todayData = sortMatchData(todayData);
-
-        inProgressMatches = _.filter(todayData, { status: 'in progress' });
-        futureMatches = _.filter(todayData, { status: 'future' });
-
-        if (inProgressMatches.length) {
-            var match = _.head(inProgressMatches);
-            var title = getMatchTitle(match, 'code');
-            tray.setTitle(title);
-            tray.setToolTip(title);
-            handleMatchEvents(match);
-            menu.append(new MenuItem({ label: getMatchTitle(match), click() {
-                shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
-            } }));
-            menu.append(new MenuItem({ type: 'separator' }));
-            currentMatch = match;
-        } else if (futureMatches.length) {
-            var match = _.head(futureMatches);
-            var title = getMatchTitle(match, 'code');
-            tray.setTitle(title);
-            tray.setToolTip('Next match: ' + title);
-        }
-
-        menu.append(new MenuItem({ label: 'Today\'s Matches', enabled: false }));
-
-        _.forEach(todayData, (match) => {
-            menu.append(new MenuItem({ label: getMatchTitle(match), click() {
-                shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
-            } }));
-        });
-    } else {
-        var title = 'No matches today';
-        tray.setTitle(title);
-        tray.setToolTip(title);
-        menu.append(new MenuItem({ label: title, enabled: false }));
-    }
-
-    if (tomorrowData && tomorrowData.length) {
-        tomorrowData = sortMatchData(tomorrowData);
-
-        menu.append(new MenuItem({ type: 'separator' }));
-        menu.append(new MenuItem({ label: 'Tomorrow\'s Matches', enabled: false }));
-        _.forEach(tomorrowData, (match) => {
-            menu.append(new MenuItem({ label: getMatchTitle(match), click() {
-                shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
-            } }));
-        });
-    }
+    renderTodayMatches();
+    renderTomorrowMatches();
 
     setMenuSettings();
     setMenuOther();
 
     tray.setContextMenu(menu);
+}
+
+function renderTodayMatches() {
+    if (!todayData || !todayData.length) {
+        let title = 'No matches today';
+        tray.setTitle(title);
+        tray.setToolTip(title);
+        menu.append(new MenuItem({label: title, enabled: false}));
+    }
+
+    todayData = sortMatchData(todayData);
+
+    inProgressMatches = _.filter(todayData, { status: 'in progress' });
+    futureMatches = _.filter(todayData, { status: 'future' });
+
+    if (inProgressMatches.length) {
+        var match = _.head(inProgressMatches);
+        var title = getMatchTitle(match, 'code');
+        tray.setTitle(title);
+        tray.setToolTip(title);
+        handleMatchEvents(match);
+        menu.append(new MenuItem({ label: getMatchTitle(match), click() {
+                shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
+            } }));
+        menu.append(new MenuItem({ type: 'separator' }));
+        currentMatch = match;
+    } else if (futureMatches.length) {
+        var match = _.head(futureMatches);
+        var title = getMatchTitle(match, 'code');
+        tray.setTitle(title);
+        tray.setToolTip('Next match: ' + title);
+    }
+
+    menu.append(new MenuItem({ label: 'Today\'s Matches', enabled: false }));
+
+    _.forEach(todayData, (match) => {
+        menu.append(new MenuItem({ label: getMatchTitle(match), click() {
+                shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
+            } }));
+    });
+}
+
+function renderTomorrowMatches() {
+    if (!tomorrowData && !tomorrowData.length) {
+        return;
+    }
+    tomorrowData = sortMatchData(tomorrowData);
+
+    menu.append(new MenuItem({type: 'separator'}));
+    menu.append(new MenuItem({label: 'Tomorrow\'s Matches', enabled: false}));
+    _.forEach(tomorrowData, (match) => {
+        menu.append(new MenuItem({
+            label: getMatchTitle(match), click() {
+                shell.openExternal('https://www.fifa.com/worldcup/matches/match/' +
+                                   match.fifa_id);
+            },
+        }));
+    });
 }
 
 function setMenuSettings() {
