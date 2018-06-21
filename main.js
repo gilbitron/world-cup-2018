@@ -48,7 +48,7 @@ function setMenu(today, tomorrow) {
     menu = new Menu();
 
     if (today.length) {
-	    today = _.sortBy(today, (match) => new moment(match.datetime));
+	      today = sortMatchData(today);
 
         inProgressMatches = _.filter(today, { status: 'in progress' });
         futureMatches = _.filter(today, { status: 'future' });
@@ -103,6 +103,10 @@ function setMenu(today, tomorrow) {
     menu.append(new MenuItem({ label: 'Quit', role: 'quit' }));
 
     tray.setContextMenu(menu);
+}
+
+function sortMatchData(data) {
+  return _.sortBy(data, (match) => new moment(match.datetime));
 }
 
 function getMatchTitle(match, label = 'country') {
