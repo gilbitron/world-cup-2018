@@ -1,5 +1,5 @@
 const path = require('path');
-const { app, Tray, Menu, MenuItem, shell } = require('electron');
+const { app, Tray, Menu, MenuItem, shell, Notification } = require('electron');
 const fetch = require('node-fetch');
 const _ = require('lodash');
 const moment = require('moment');
@@ -11,6 +11,9 @@ let tray = null;
 let menu = null;
 let tomorrowData = null;
 let todayData = null;
+let currentMatch = null;
+let supportedEvents = ['goal', 'goal-penalty'];
+
 
 app.on('ready', () => {
     if (app.dock) {
@@ -32,6 +35,10 @@ app.on('ready', () => {
 function setDefaultSettings() {
     if (!settings.has('show_flags')) {
         settings.set('show_flags', true);
+    }
+
+    if (!settings.has('notifications')) {
+        settings.set('notifications', true);
     }
 }
 
@@ -75,10 +82,14 @@ function setMenu() {
             var title = getMatchTitle(match, 'code');
             tray.setTitle(title);
             tray.setToolTip(title);
+
             menu.append(new MenuItem({ label: getMatchTitle(match), click() {
                 shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
             } }));
             menu.append(new MenuItem({ type: 'separator' }));
+
+            handleMatchEvents(match);
+            currentMatch = match;
         } else if (futureMatches.length) {
             var match = _.head(futureMatches);
             var title = getMatchTitle(match, 'code');
@@ -121,6 +132,14 @@ function setMenu() {
 function setMenuSettings() {
     menu.append(new MenuItem({type: 'separator'}));
     menu.append(new MenuItem({
+        label: 'Notifications',
+        type: 'checkbox',
+        checked: isShowingNotifications(),
+        click(menuItem) {
+            settings.set('notifications', menuItem.checked);
+        },
+    }));
+    menu.append(new MenuItem({
         label: 'Show Flags',
         type: 'checkbox',
         checked: isShowingFlags(),
@@ -129,6 +148,10 @@ function setMenuSettings() {
             setMenu();
         },
     }));
+}
+
+function isShowingNotifications() {
+    return settings.get('notifications');
 }
 
 function isShowingFlags() {
@@ -145,11 +168,11 @@ function sortMatchData(data) {
     return _.sortBy(data, (match) => moment(match.datetime));
 }
 
-function getMatchTitle(match, label = 'country') {
+function getMatchTitle(match, label = 'country', displayTime = true, useEmojis = true) {
     let homeTeam = match.home_team[label];
     let awayTeam = match.away_team[label];
 
-    if (isShowingFlags()) {
+    if (isShowingFlags() && useEmojis) {
         homeTeam += ' ' + getCountryEmoji(match.home_team['code']);
         awayTeam = getCountryEmoji(match.away_team['code']) + ' ' + awayTeam;
     }
@@ -158,7 +181,90 @@ function getMatchTitle(match, label = 'country') {
         return homeTeam + ' ' + match.home_team.goals + ' - ' + match.away_team.goals + ' ' + awayTeam + ' (' + formatMatchTime(match.time) + ')';
     }
 
-    return homeTeam + ' - ' + awayTeam + ' (' + formatDatetime(match.datetime) + ')';
+    let title = homeTeam + ' - ' + awayTeam;
+    if (displayTime) {
+        title += ' (' + formatDatetime(match.datetime) + ')';
+    }
+
+    return title;
+}
+
+function handleMatchEvents(match) {
+    if (!isShowingNotifications()) {
+        return;
+    }
+    if (currentMatch == null) {
+        return;
+    }
+
+    let newEvents = getNewEvents(match);
+    if (_.isEmpty(newEvents)) {
+        return;
+    }
+
+    _.forEach(newEvents, (event) => {
+        eventNotification(event, match);
+    }, match);
+}
+
+function getNewEvents(match) {
+    let cachedMatchEvents = getMatchEvents(currentMatch);
+    let matchEvents = getMatchEvents(match);
+
+    let newHomeEvents = matchEvents.home.filter(
+        e => !cachedMatchEvents.home.includes(e));
+    let newAwayEvents = matchEvents.away.filter(
+        e => !cachedMatchEvents.away.includes(e));
+
+    if (_.isEmpty(newHomeEvents) && _.isEmpty(newAwayEvents)) {
+        return [];
+    }
+
+    newHomeEvents.map((event) => {
+        event.team = 'home_team';
+        return event;
+    });
+    newAwayEvents.map((event) => {
+        event.team = 'away_team';
+        return event;
+    });
+
+    newEvents = newHomeEvents.concat(newAwayEvents);
+    newEvents = _.sortBy(newEvents, (event) => event.id);
+
+    newEvents = newEvents.filter((event) => {
+        return supportedEvents.includes(event.type_of_event);
+    });
+
+    return newEvents;
+}
+
+function eventNotification(event, match) {
+    let flag = getCountryEmoji(match[event.team].code);
+
+    let title = flag + ' GOAL! ' + getMatchTitle(match, 'country', false, false);
+
+    let player = event.player;
+    if (event.type_of_event === 'goal-penalty') {
+        player += ' (penalty)';
+    }
+
+    let message = event.time + ' ' + player;
+
+    let notification = new Notification({
+        title: title,
+        body: message,
+        silent: true,
+    });
+    notification.show();
+}
+
+function getMatchEvents(match) {
+    let matchEvents = [];
+    matchEvents.home = match.home_team_events;
+    matchEvents.away = match.away_team_events;
+
+    return matchEvents;
 }
 
 function getCountryEmoji(code) {
