@@ -2,7 +2,7 @@
 
 Live World Cup 2018 scores in your menu bar.
 
-![WorldCup 2018 Demo](https://user-images.githubusercontent.com/203882/41670911-83ec5f10-74ad-11e8-930c-7012721665f0.gif)
+![WorldCup 2018 Demo](https://user-images.githubusercontent.com/203882/41728736-6902477e-756f-11e8-98cb-38df96f78eda.gif)
 
 ## Download
 
