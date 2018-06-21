@@ -231,23 +231,27 @@ function getNewEvents(match) {
         return [];
     }
 
-    newHomeEvents.map((event) => {
+    return combineTeamEvents(newHomeEvents, newAwayEvents );
+}
+
+function combineTeamEvents(homeEvents, awayEvents) {
+    homeEvents.map((event) => {
         event.team = 'home_team';
         return event;
     });
-    newAwayEvents.map((event) => {
+    awayEvents.map((event) => {
         event.team = 'away_team';
         return event;
     });
 
-    newEvents = newHomeEvents.concat(newAwayEvents);
-    newEvents = _.sortBy(newEvents, (event) => event.id);
+    events = homeEvents.concat(awayEvents);
+    events = _.sortBy(events, (event) => event.id);
 
-    newEvents = newEvents.filter((event) => {
+    events = events.filter((event) => {
         return supportedEvents.includes(event.type_of_event);
     });
 
-    return newEvents;
+    return events;
 }
 
 function eventNotification(event, match) {
