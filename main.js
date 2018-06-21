@@ -38,6 +38,10 @@ function setDefaultSettings() {
     if (!settings.has('show_flags')) {
         settings.set('show_flags', true);
     }
+
+    if (!settings.has('notifications')) {
+        settings.set('notifications', true);
+    }
 }
 
 app.on('window-all-closed', () => {
@@ -128,6 +132,14 @@ function setMenu() {
 function setMenuSettings() {
     menu.append(new MenuItem({type: 'separator'}));
     menu.append(new MenuItem({
+        label: 'Notifications',
+        type: 'checkbox',
+        checked: isShowingNotifications(),
+        click(menuItem) {
+            settings.set('notifications', menuItem.checked);
+        },
+    }));
+    menu.append(new MenuItem({
         label: 'Show Flags',
         type: 'checkbox',
         checked: isShowingFlags(),
@@ -136,6 +148,10 @@ function setMenuSettings() {
             setMenu();
         },
     }));
+}
+
+function isShowingNotifications() {
+    return settings.get('notifications');
 }
 
 function isShowingFlags() {
@@ -181,6 +197,10 @@ function getMatchEvents(match) {
 }
 
 function handleMatchEvents(match) {
+    if (!isShowingNotifications()) {
+        return;
+    }
+
     if (currentMatch == null) {
         return;
     }
@@ -193,7 +213,7 @@ function handleMatchEvents(match) {
 
     _.forEach(newEvents, (event) => {
         eventNotification(event, match);
-    }, match );
+    }, match);
 }
 
 function getNewEvents(match) {
