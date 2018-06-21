@@ -123,7 +123,7 @@ function renderTodayMatches() {
 }
 
 function renderTomorrowMatches() {
-    if (!tomorrowData && !tomorrowData.length) {
+    if (!tomorrowData || !tomorrowData.length) {
         return;
     }
     tomorrowData = sortMatchData(tomorrowData);
