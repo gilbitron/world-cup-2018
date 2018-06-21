@@ -151,11 +151,11 @@ function sortMatchData(data) {
     return _.sortBy(data, (match) => moment(match.datetime));
 }
 
-function getMatchTitle(match, label = 'country') {
+function getMatchTitle(match, label = 'country', display_time = true, use_emojis = true ) {
     let homeTeam = match.home_team[label];
     let awayTeam = match.away_team[label];
 
-    if (use_emoji_flags()) {
+    if (use_emoji_flags() && use_emojis) {
         homeTeam += ' ' + getCountryEmoji(match.home_team['code']);
         awayTeam += ' ' + getCountryEmoji(match.away_team['code']);
     }
@@ -164,7 +164,11 @@ function getMatchTitle(match, label = 'country') {
         return homeTeam + ' ' + match.home_team.goals + ' - ' + match.away_team.goals + ' ' + awayTeam + ' (' + formatMatchTime(match.time) + ')';
     }
 
-    return homeTeam + ' - ' + awayTeam + ' (' + formatDatetime(match.datetime) + ')';
+    let title = homeTeam + ' - ' + awayTeam;
+    if (display_time) {
+        title += ' (' + formatDatetime(match.datetime) + ')';
+    }
+    return title;
 }
 
 function getCountryEmoji(code) {
