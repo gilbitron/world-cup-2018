@@ -128,8 +128,6 @@ function renderTodayMatches() {
         tray.setToolTip(title);
 
         renderMatchEvents(match);
-        menu.append(new MenuItem({ type: 'separator' }));
-
         handleMatchEvents(match);
     } else if (futureMatches.length) {
         var match = _.head(futureMatches);
@@ -147,27 +145,32 @@ function renderTodayMatches() {
 
     _.forEach(todayData, (match) => {
         menu.append(new MenuItem({ label: getMatchTitle(match), click() {
-                shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
-            } }));
+            shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
+        } }));
     });
 }
 
 function renderMatchEvents(match) {
     let events = combineTeamEvents(match.home_team_events, match.away_team_events);
-    _.forEach(events, (event) => {
-        let description = getEventDescription(event, false);
-        let prefix = match[event.team].code;
-        if (isShowingFlags()) {
-            prefix = getCountryEmoji(prefix);
-        }
-        menu.append(new MenuItem({label: prefix + ' ' + description}));
-    });
+    if (events.length) {
+        _.forEach(events, (event) => {
+            let description = getEventDescription(event, false);
+            let prefix = match[event.team].code;
+            if (isShowingFlags()) {
+                prefix = getCountryEmoji(prefix);
+            }
+            menu.append(new MenuItem({label: prefix + ' ' + description}));
+        });
+
+        menu.append(new MenuItem({ type: 'separator' }));
+    }
 }
 
 function renderTomorrowMatches() {
     if (!tomorrowData || !tomorrowData.length) {
         return;
     }
+
     tomorrowData = sortMatchData(tomorrowData);
 
     menu.append(new MenuItem({type: 'separator'}));
