@@ -130,9 +130,7 @@ function renderTodayMatches() {
 }
 
 function renderMatchEvents(match) {
-    let matchEvents = getMatchEvents(match);
-
-    let events = combineTeamEvents(matchEvents.home, matchEvents.away);
+    let events = combineTeamEvents(match.home_team_events, match.away_team_events);
     _.forEach(events, (event) => {
         menu.append(new MenuItem({label: getEventDescription(event)}));
     });
