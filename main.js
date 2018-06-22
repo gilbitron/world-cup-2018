@@ -130,7 +130,7 @@ function renderTodayMatches() {
         tray.setTitle(title);
         tray.setToolTip(title);
 
-        renderMatchEvents(match, title.length);
+        renderMatchEvents(match);
         menu.append(new MenuItem({ type: 'separator' }));
 
         handleMatchEvents(match);
@@ -155,16 +155,15 @@ function renderTodayMatches() {
     });
 }
 
-function renderMatchEvents(match, trayTitleLength) {
+function renderMatchEvents(match) {
     let events = combineTeamEvents(match.home_team_events, match.away_team_events);
     _.forEach(events, (event) => {
         let description = getEventDescription(event, false);
-        if (event.team === 'away_team') {
-            // Make the away team's events right aligned with hacky left padding
-            let padTotal = trayTitleLength - description.length;
-            description = description.padStart(padTotal *2 );
+        let prefix = match[event.team].code;
+        if ( isShowingFlags() ) {
+            prefix = getCountryEmoji( prefix );
         }
-        menu.append(new MenuItem({label: description}));
+        menu.append(new MenuItem({label: prefix + ' ' + description}));
     });
 }
 
