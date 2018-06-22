@@ -54,7 +54,6 @@ function fetchTomorrowData () {
         .then(json => {
             tomorrowData = json;
             setMenu();
-            isInitialFetch = false;
         }).catch(function (err) {
             console.error(err);
         });
@@ -66,6 +65,7 @@ function fetchTodayData() {
         .then(json => {
             todayData = json;
             setMenu();
+            isInitialFetch = false;
         }).catch(function (err) {
             console.error(err);
         });
