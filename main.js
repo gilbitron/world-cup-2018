@@ -9,6 +9,7 @@ let teamData = require('./teams.json');
 
 let tray = null;
 let menu = null;
+let menuIsOpen = false;
 let tomorrowData = null;
 let todayData = null;
 let currentMatch = null;
@@ -22,7 +23,7 @@ app.on('ready', () => {
     }
 
     tray = new Tray(path.join(app.getAppPath(), 'icon/iconTemplate.png'));
-    menu = new Menu();
+    createMenu();
     menu.append(new MenuItem({ label: 'Quit', role: 'quit' }));
     tray.setContextMenu(menu);
 
@@ -69,8 +70,23 @@ function fetchTodayData() {
         })
 }
 
-function setMenu() {
+function createMenu() {
     menu = new Menu();
+
+    menu.on('menu-will-show', () => {
+        menuIsOpen = true;
+    });
+    menu.on('menu-will-close', () => {
+        menuIsOpen = false;
+    });
+}
+
+function setMenu() {
+    if (menuIsOpen) {
+        return;
+    }
+
+    createMenu();
 
     if (todayData && todayData.length) {
         todayData = sortMatchData(todayData);
