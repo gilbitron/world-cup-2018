@@ -15,7 +15,7 @@ let todayData = null;
 let currentMatch = null;
 let currentMatchEvents = [];
 let supportedEvents = ['goal', 'goal-penalty'];
-
+let isInitialFetch = true;
 
 app.on('ready', () => {
     if (app.dock) {
@@ -54,9 +54,10 @@ function fetchTomorrowData () {
         .then(json => {
             tomorrowData = json;
             setMenu();
+            isInitialFetch = false;
         }).catch(function (err) {
             console.error(err);
-        })
+        });
 }
 
 function fetchTodayData() {
@@ -67,7 +68,7 @@ function fetchTodayData() {
             setMenu();
         }).catch(function (err) {
             console.error(err);
-        })
+        });
 }
 
 function createMenu() {
@@ -224,6 +225,9 @@ function handleMatchEvents(match) {
 
     let newEvents = getNewEvents(match);
     if (_.isEmpty(newEvents)) {
+        return;
+    }
+    if (isInitialFetch) {
         return;
     }
 
