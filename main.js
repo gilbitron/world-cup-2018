@@ -272,7 +272,8 @@ function getEventDescription(event) {
     }
     time += ')';
 
-    return event.player + time;
+    let player = event.player;
+    return _.startCase(_.toLower(player)) + time;
 }
 
 function eventNotification(event, match) {
