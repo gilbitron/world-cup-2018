@@ -104,7 +104,7 @@ function renderTodayMatches() {
         tray.setTitle(title);
         tray.setToolTip(title);
 
-        renderMatchEvents(match);
+        renderMatchEvents(match, title.length);
         menu.append(new MenuItem({ type: 'separator' }));
 
         handleMatchEvents(match);
@@ -129,10 +129,16 @@ function renderTodayMatches() {
     });
 }
 
-function renderMatchEvents(match) {
+function renderMatchEvents(match, trayTitleLength) {
     let events = combineTeamEvents(match.home_team_events, match.away_team_events);
     _.forEach(events, (event) => {
-        menu.append(new MenuItem({label: getEventDescription(event)}));
+        let description = getEventDescription(event, false);
+        if (event.team === 'away_team') {
+            // Make the away team's events right aligned with hacky left padding
+            let padTotal = trayTitleLength - description.length;
+            description = description.padStart(padTotal *2 );
+        }
+        menu.append(new MenuItem({label: description}));
     });
 }
 
@@ -265,7 +271,7 @@ function combineTeamEvents(homeEvents, awayEvents) {
     return events;
 }
 
-function getEventDescription(event) {
+function getEventDescription(event, fullname = true ) {
     let time = ' (' + event.time;
     if (event.type_of_event === 'goal-penalty') {
         time += ' pen';
@@ -273,6 +279,10 @@ function getEventDescription(event) {
     time += ')';
 
     let player = event.player;
+    if (!fullname) {
+        player = player.split(' ').slice(-1).join(' ');
+    }
+
     return _.startCase(_.toLower(player)) + time;
 }
 
