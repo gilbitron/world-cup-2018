@@ -9,12 +9,13 @@ let teamData = require('./teams.json');
 
 let tray = null;
 let menu = null;
+let menuIsOpen = false;
 let tomorrowData = null;
 let todayData = null;
 let currentMatch = null;
 let currentMatchEvents = [];
 let supportedEvents = ['goal', 'goal-penalty'];
-
+let isInitialFetch = true;
 
 app.on('ready', () => {
     if (app.dock) {
@@ -22,7 +23,7 @@ app.on('ready', () => {
     }
 
     tray = new Tray(path.join(app.getAppPath(), 'icon/iconTemplate.png'));
-    menu = new Menu();
+    createMenu();
     menu.append(new MenuItem({ label: 'Quit', role: 'quit' }));
     tray.setContextMenu(menu);
 
@@ -52,6 +53,7 @@ async function initMenu () {
             let resp = await fetch('https://world-cup-json.herokuapp.com/matches/tomorrow');
             tomorrowData = await resp.json();
             fetchTodayData();
+            isInitialFetch = false;
         } catch (error) {
             console.log('error: ', error);
         }
@@ -66,11 +68,26 @@ function fetchTodayData() {
             setMenu();
         }).catch(function (err) {
             console.error(err);
-        })
+        });
+}
+
+function createMenu() {
+    menu = new Menu();
+
+    menu.on('menu-will-show', () => {
+        menuIsOpen = true;
+    });
+    menu.on('menu-will-close', () => {
+        menuIsOpen = false;
+    });
 }
 
 function setMenu() {
-    menu = new Menu();
+    if (menuIsOpen) {
+        return;
+    }
+
+    createMenu();
 
     renderTodayMatches();
     renderTomorrowMatches();
@@ -230,6 +247,9 @@ function handleMatchEvents(match) {
 
     let newEvents = getNewEvents(match);
     if (_.isEmpty(newEvents)) {
+        return;
+    }
+    if (isInitialFetch) {
         return;
     }
 
