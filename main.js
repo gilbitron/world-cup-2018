@@ -266,7 +266,7 @@ function combineTeamEvents(homeEvents, awayEvents) {
 }
 
 function getEventDescription(event) {
-    let time = '(' + event.time;
+    let time = ' (' + event.time;
     if (event.type_of_event === 'goal-penalty') {
         time += ' pen';
     }
