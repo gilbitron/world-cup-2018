@@ -28,8 +28,7 @@ app.on('ready', () => {
 
     setDefaultSettings();
 
-    fetchTomorrowData();
-    fetchTodayData();
+    initMenu();
     setInterval(fetchTodayData, 60 * 1000);
 });
 
@@ -47,15 +46,16 @@ app.on('window-all-closed', () => {
     // nothing
 });
 
-function fetchTomorrowData () {
-    fetch('https://world-cup-json.herokuapp.com/matches/tomorrow')
-        .then(resp => resp.json())
-        .then(json => {
-            tomorrowData = json;
-            setMenu();
-        }).catch(function (err) {
-            console.error(err);
-        })
+async function initMenu () {
+    (async () => {
+        try {
+            let resp = await fetch('https://world-cup-json.herokuapp.com/matches/tomorrow');
+            tomorrowData = await resp.json();
+            fetchTodayData();
+        } catch (error) {
+            console.log('error: ', error);
+        }
+    })();
 }
 
 function fetchTodayData() {
