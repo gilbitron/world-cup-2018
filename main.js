@@ -65,14 +65,14 @@ function fetchTomorrowData() {
 
 function fetchTodayData() {
     fetch('https://world-cup-json.herokuapp.com/matches/today')
-    .then(resp => resp.json())
-    .then(json => {
-        todayData = json;
-        setMenu();
-        isInitialFetch = false;
-    }).catch(function (err) {
-        console.error(err);
-    });
+        .then(resp => resp.json())
+        .then(json => {
+            todayData = json;
+            setMenu();
+            isInitialFetch = false;
+        }).catch(function (err) {
+            console.error(err);
+        });
 }
 
 function createMenu() {
@@ -113,7 +113,7 @@ function renderTodayMatches() {
     todayData = sortMatchData(todayData);
 
     inProgressMatches = _.filter(todayData, { status: 'in progress' });
-    futureMatches = _.filter(todayData, { status: 'future' });
+    futureMatches     = _.filter(todayData, { status: 'future' });
 
     if (inProgressMatches.length) {
         var match = _.head(inProgressMatches);
@@ -155,8 +155,8 @@ function renderMatchEvents(match) {
     _.forEach(events, (event) => {
         let description = getEventDescription(event, false);
         let prefix = match[event.team].code;
-        if ( isShowingFlags() ) {
-            prefix = getCountryEmoji( prefix );
+        if (isShowingFlags()) {
+            prefix = getCountryEmoji(prefix);
         }
         menu.append(new MenuItem({label: prefix + ' ' + description}));
     });
@@ -173,8 +173,7 @@ function renderTomorrowMatches() {
     _.forEach(tomorrowData, (match) => {
         menu.append(new MenuItem({
             label: getMatchTitle(match), click() {
-                shell.openExternal('https://www.fifa.com/worldcup/matches/match/' +
-                                   match.fifa_id);
+                shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
             },
         }));
     });
@@ -269,7 +268,7 @@ function getNewEvents(match) {
         return [];
     }
 
-    return combineTeamEvents(newHomeEvents, newAwayEvents );
+    return combineTeamEvents(newHomeEvents, newAwayEvents);
 }
 
 function combineTeamEvents(homeEvents, awayEvents) {
@@ -294,7 +293,7 @@ function combineTeamEvents(homeEvents, awayEvents) {
     return events;
 }
 
-function getEventDescription(event, fullname = true ) {
+function getEventDescription(event, fullname = true) {
     let time = ' (' + event.time;
     if (event.type_of_event === 'goal-penalty') {
         time += ' pen';
