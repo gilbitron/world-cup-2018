@@ -56,7 +56,7 @@ function fetchTomorrowData () {
             isInitialFetch = false;
         }).catch(function (err) {
             console.error(err);
-        })
+        });
 }
 
 function fetchTodayData() {
@@ -67,7 +67,7 @@ function fetchTodayData() {
             setMenu();
         }).catch(function (err) {
             console.error(err);
-        })
+        });
 }
 
 function setMenu() {
