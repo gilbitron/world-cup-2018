@@ -29,18 +29,9 @@ app.on('ready', () => {
 
     setDefaultSettings();
 
-    fetchTomorrowData(true);
+    fetchTomorrowData();
     fetchTodayData();
     setInterval(fetchTodayData, 60 * 1000);
-    if (tomorrowData == null) {
-        setInterval(function() {
-            if (tomorrowData == null) {
-                // Handle if tomorrow fetch fails
-                fetchTomorrowData();
-            }
-        }, 60 * 1000);
-    }
-    setInterval(fetchTomorrowData, 60 * 60 * 1000); // Handle when the day changes
 });
 
 function setDefaultSettings() {
@@ -57,15 +48,19 @@ app.on('window-all-closed', () => {
     // nothing
 });
 
-function fetchTomorrowData (initialFetch = false) {
+function fetchTomorrowData() {
     fetch('https://world-cup-json.herokuapp.com/matches/tomorrow')
-    .then(resp => resp.json())
-    .then(json => {
-        tomorrowData = json;
-        setMenu();
-    }).catch(function (err) {
-        console.error(err);
-    });
+        .then(resp => resp.json())
+        .then(json => {
+            tomorrowData = json;
+            setMenu();
+
+            setTimeout(fetchTomorrowData, 60 * 60 * 1000); // Update every hour
+        }).catch(function (err) {
+            console.error(err);
+
+            setTimeout(fetchTomorrowData, 60 * 1000); // Retry in a minute
+        });
 }
 
 function fetchTodayData() {
