@@ -108,6 +108,8 @@ function renderTodayMatches() {
         tray.setTitle(title);
         tray.setToolTip(title);
         menu.append(new MenuItem({label: title, enabled: false}));
+
+        return;
     }
 
     todayData = sortMatchData(todayData);
