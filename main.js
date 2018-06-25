@@ -130,8 +130,8 @@ function renderTodayMatches() {
                renderMatchTitle(match);
             }
 
-            renderMatchEvents(match);
             handleMatchEvents(match);
+            renderMatchEvents(match);
 
             if ( inProgressMatches.length > 1 && key <  inProgressMatches.length -1 ) {
                 menu.append(new MenuItem({type: 'separator'}));
