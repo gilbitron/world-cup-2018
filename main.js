@@ -133,9 +133,7 @@ function renderTodayMatches() {
             handleMatchEvents(match);
             renderMatchEvents(match);
 
-            if ( inProgressMatches.length > 1 && key <  inProgressMatches.length -1 ) {
-                menu.append(new MenuItem({type: 'separator'}));
-            }
+            menu.append(new MenuItem({type: 'separator'}));
         });
     } else if (futureMatches.length) {
         let nextMatches = getFirstMatches(futureMatches);
@@ -190,8 +188,6 @@ function renderMatchEvents(match) {
             }
             menu.append(new MenuItem({label: prefix + ' ' + description}));
         });
-
-        menu.append(new MenuItem({ type: 'separator' }));
     }
 }
 
