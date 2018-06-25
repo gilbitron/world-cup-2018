@@ -123,13 +123,13 @@ function renderTodayMatches() {
             currentMatch = match;
             currentMatchEvents = [];
         }
-        setTray(match);
+        setTray(inProgressMatches);
 
         renderMatchEvents(match);
         handleMatchEvents(match);
     } else if (futureMatches.length) {
-        var match = _.head(futureMatches);
-        setTray(match);
+        let nextMatches = getFirstMatches(futureMatches);
+        setTray(nextMatches);
     }
 
     if (!inProgressMatches.length) {
@@ -146,8 +146,19 @@ function renderTodayMatches() {
     });
 }
 
-function setTray(match) {
-    let title = getMatchTitle(match, 'code');
+function getFirstMatches(matches) {
+    let firstMatch = _.head(matches);
+    return _.filter(matches, ['datetime', firstMatch.datetime]);
+}
+
+function setTray(matches) {
+    let titles = [];
+    _.forEach(matches, (match) => {
+        titles.push(getMatchTitle(match, 'code'));
+    });
+
+    let title = titles.join(' / ');
+
     tray.setTitle(title);
     tray.setToolTip('Next match: ' + title);
 }
