@@ -120,8 +120,8 @@ function renderTodayMatches() {
     if (inProgressMatches.length) {
         setTray(inProgressMatches);
 
-        _.forEach(inProgressMatches, (match, key) => {
-            if (_.isEmpty(currentMatches) || !_.every(currentMatches, ['fifa_id', match.fifa_id])) {
+        _.forEach(inProgressMatches, (match) => {
+            if (_.isEmpty(currentMatches) || !_.some(currentMatches, ['fifa_id', match.fifa_id])) {
                 currentMatches.push(match);
                 currentMatchesEvents[match.fifa_id] = [];
             }
@@ -273,7 +273,8 @@ function handleMatchEvents(match) {
     if (!isShowingNotifications()) {
         return;
     }
-    if (currentMatches[match.fifa_id] === undefined) {
+
+    if (!_.some(currentMatches, ['fifa_id', match.fifa_id])) {
         return;
     }
 
