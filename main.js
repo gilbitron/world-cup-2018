@@ -126,7 +126,7 @@ function renderTodayMatches() {
                 currentMatchesEvents[match.fifa_id] = [];
             }
 
-            if ( inProgressMatches.length > 1 ) {
+            if (inProgressMatches.length > 1) {
                renderMatchTitle(match);
             }
 
