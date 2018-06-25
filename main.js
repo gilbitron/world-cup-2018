@@ -12,8 +12,8 @@ let menu = null;
 let menuIsOpen = false;
 let tomorrowData = null;
 let todayData = null;
-let currentMatch = null;
-let currentMatchEvents = [];
+let currentMatches = [];
+let currentMatchesEvents = [];
 let supportedEvents = ['goal', 'goal-penalty'];
 let isInitialFetch = true;
 
@@ -114,44 +114,71 @@ function renderTodayMatches() {
 
     todayData = sortMatchData(todayData);
 
-    inProgressMatches = _.filter(todayData, { status: 'in progress' });
-    futureMatches     = _.filter(todayData, { status: 'future' });
+    let inProgressMatches = _.filter(todayData, { status: 'in progress' });
+    let futureMatches     = _.filter(todayData, { status: 'future' });
 
     if (inProgressMatches.length) {
-        var match = _.head(inProgressMatches);
-        if (!currentMatch || currentMatch.fifa_id != match.fifa_id) {
-            currentMatch = match;
-            currentMatchEvents = [];
-        }
-        var title = getMatchTitle(match, 'code');
-        tray.setTitle(title);
-        tray.setToolTip(title);
+        setTray(inProgressMatches);
 
-        renderMatchEvents(match);
-        handleMatchEvents(match);
+        _.forEach(inProgressMatches, (match) => {
+            if (_.isEmpty(currentMatches) || !_.some(currentMatches, ['fifa_id', match.fifa_id])) {
+                currentMatches.push(match);
+                currentMatchesEvents[match.fifa_id] = [];
+            }
+
+            if (inProgressMatches.length > 1) {
+               renderMatchTitle(match);
+            }
+
+            handleMatchEvents(match);
+            renderMatchEvents(match);
+
+            menu.append(new MenuItem({type: 'separator'}));
+        });
     } else if (futureMatches.length) {
-        var match = _.head(futureMatches);
-        var title = getMatchTitle(match, 'code');
-        tray.setTitle(title);
-        tray.setToolTip('Next match: ' + title);
+        let nextMatches = getFirstMatches(futureMatches);
+        setTray(nextMatches);
     }
 
     if (!inProgressMatches.length) {
-        currentMatch = null;
-        currentMatchEvents = [];
+        currentMatches = null;
+        currentMatchesEvents = [];
     }
 
     menu.append(new MenuItem({ label: 'Today\'s Matches', enabled: false }));
 
     _.forEach(todayData, (match) => {
-        menu.append(new MenuItem({ label: getMatchTitle(match), click() {
-            shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
-        } }));
+        renderMatchTitle(match)
     });
 }
 
+function renderMatchTitle(match) {
+    menu.append(new MenuItem({
+        label: getMatchTitle(match), click() {
+            shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
+        },
+    }));
+}
+
+function getFirstMatches(matches) {
+    let firstMatch = _.head(matches);
+    return _.filter(matches, ['datetime', firstMatch.datetime]);
+}
+
+function setTray(matches) {
+    let titles = [];
+    _.forEach(matches, (match) => {
+        titles.push(getMatchTitle(match, 'code'));
+    });
+
+    let title = titles.join(' / ');
+
+    tray.setTitle(title);
+    tray.setToolTip('Next match: ' + title);
+}
+
 function renderMatchEvents(match) {
-    let events = combineTeamEvents(match.home_team_events, match.away_team_events);
+    let events = combineTeamEvents(match, match.home_team_events, match.away_team_events);
     if (events.length) {
         _.forEach(events, (event) => {
             let description = getEventDescription(event, false);
@@ -161,8 +188,6 @@ function renderMatchEvents(match) {
             }
             menu.append(new MenuItem({label: prefix + ' ' + description}));
         });
-
-        menu.append(new MenuItem({ type: 'separator' }));
     }
 }
 
@@ -176,11 +201,7 @@ function renderTomorrowMatches() {
     menu.append(new MenuItem({type: 'separator'}));
     menu.append(new MenuItem({label: 'Tomorrow\'s Matches', enabled: false}));
     _.forEach(tomorrowData, (match) => {
-        menu.append(new MenuItem({
-            label: getMatchTitle(match), click() {
-                shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
-            },
-        }));
+        renderMatchTitle(match);
     });
 }
 
@@ -248,7 +269,8 @@ function handleMatchEvents(match) {
     if (!isShowingNotifications()) {
         return;
     }
-    if (!currentMatch) {
+
+    if (!_.some(currentMatches, ['fifa_id', match.fifa_id])) {
         return;
     }
 
@@ -266,24 +288,24 @@ function handleMatchEvents(match) {
 }
 
 function getNewEvents(match) {
-    let newHomeEvents = _.reject(match.home_team_events, (event) => _.includes(currentMatchEvents, event.id));
-    let newAwayEvents = _.reject(match.away_team_events, (event) => _.includes(currentMatchEvents, event.id));
+    let newHomeEvents = _.reject(match.home_team_events, (event) => _.includes(currentMatchesEvents[match.fifa_id], event.id));
+    let newAwayEvents = _.reject(match.away_team_events, (event) => _.includes(currentMatchesEvents[match.fifa_id], event.id));
 
     if (_.isEmpty(newHomeEvents) && _.isEmpty(newAwayEvents)) {
         return [];
     }
 
-    return combineTeamEvents(newHomeEvents, newAwayEvents);
+    return combineTeamEvents(match, newHomeEvents, newAwayEvents);
 }
 
-function combineTeamEvents(homeEvents, awayEvents) {
+function combineTeamEvents(match, homeEvents, awayEvents) {
     homeEvents.map((event) => {
-        currentMatchEvents.push(event.id);
+        currentMatchesEvents[match.fifa_id].push(event.id);
         event.team = 'home_team';
         return event;
     });
     awayEvents.map((event) => {
-        currentMatchEvents.push(event.id);
+        currentMatchesEvents[match.fifa_id].push(event.id);
         event.team = 'away_team';
         return event;
     });
