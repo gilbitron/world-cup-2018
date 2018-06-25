@@ -121,18 +121,21 @@ function renderTodayMatches() {
         setTray(inProgressMatches);
 
         _.forEach(inProgressMatches, (match, key) => {
-            if (!currentMatches ||
-                !_.every(currentMatches, ['fifa_id', match.fifa_id])) {
+            if (_.isEmpty(currentMatches) || !_.every(currentMatches, ['fifa_id', match.fifa_id])) {
                 currentMatches.push(match);
                 currentMatchesEvents[match.fifa_id] = [];
             }
 
-            if ( inProgressMatches.length > 1 && key === 0 ) {
-                menu.append(new MenuItem({type: 'separator'}));
+            if ( inProgressMatches.length > 1 ) {
+               renderMatchTitle(match);
             }
 
             renderMatchEvents(match);
             handleMatchEvents(match);
+
+            if ( inProgressMatches.length > 1 && key <  inProgressMatches.length -1 ) {
+                menu.append(new MenuItem({type: 'separator'}));
+            }
         });
     } else if (futureMatches.length) {
         let nextMatches = getFirstMatches(futureMatches);
@@ -177,7 +180,7 @@ function setTray(matches) {
 }
 
 function renderMatchEvents(match) {
-    let events = combineTeamEvents(match.home_team_events, match.away_team_events);
+    let events = combineTeamEvents(match, match.home_team_events, match.away_team_events);
     if (events.length) {
         _.forEach(events, (event) => {
             let description = getEventDescription(event, false);
@@ -295,10 +298,10 @@ function getNewEvents(match) {
         return [];
     }
 
-    return combineTeamEvents(newHomeEvents, newAwayEvents);
+    return combineTeamEvents(match, newHomeEvents, newAwayEvents);
 }
 
-function combineTeamEvents(homeEvents, awayEvents) {
+function combineTeamEvents(match, homeEvents, awayEvents) {
     homeEvents.map((event) => {
         currentMatchesEvents[match.fifa_id].push(event.id);
         event.team = 'home_team';
