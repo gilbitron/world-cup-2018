@@ -123,17 +123,13 @@ function renderTodayMatches() {
             currentMatch = match;
             currentMatchEvents = [];
         }
-        var title = getMatchTitle(match, 'code');
-        tray.setTitle(title);
-        tray.setToolTip(title);
+        setTray(match);
 
         renderMatchEvents(match);
         handleMatchEvents(match);
     } else if (futureMatches.length) {
         var match = _.head(futureMatches);
-        var title = getMatchTitle(match, 'code');
-        tray.setTitle(title);
-        tray.setToolTip('Next match: ' + title);
+        setTray(match);
     }
 
     if (!inProgressMatches.length) {
@@ -148,6 +144,12 @@ function renderTodayMatches() {
             shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
         } }));
     });
+}
+
+function setTray(match) {
+    let title = getMatchTitle(match, 'code');
+    tray.setTitle(title);
+    tray.setToolTip('Next match: ' + title);
 }
 
 function renderMatchEvents(match) {
