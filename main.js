@@ -140,10 +140,16 @@ function renderTodayMatches() {
     menu.append(new MenuItem({ label: 'Today\'s Matches', enabled: false }));
 
     _.forEach(todayData, (match) => {
-        menu.append(new MenuItem({ label: getMatchTitle(match), click() {
-            shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
-        } }));
+        renderMatchTitle(match)
     });
+}
+
+function renderMatchTitle(match) {
+    menu.append(new MenuItem({
+        label: getMatchTitle(match), click() {
+            shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
+        },
+    }));
 }
 
 function getFirstMatches(matches) {
@@ -189,11 +195,7 @@ function renderTomorrowMatches() {
     menu.append(new MenuItem({type: 'separator'}));
     menu.append(new MenuItem({label: 'Tomorrow\'s Matches', enabled: false}));
     _.forEach(tomorrowData, (match) => {
-        menu.append(new MenuItem({
-            label: getMatchTitle(match), click() {
-                shell.openExternal('https://www.fifa.com/worldcup/matches/match/' + match.fifa_id);
-            },
-        }));
+        renderMatchTitle(match);
     });
 }
 
